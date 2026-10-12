@@ -1,0 +1,71 @@
+[
+  {
+    "id": "core",
+    "name": "Sangli City Core",
+    "score": 88,
+    "apr": 34.2,
+    "center": [16.855, 74.580],
+    "bounds": [
+      [16.872, 74.5558],
+      [16.8737, 74.602],
+      [16.838, 74.6031],
+      [16.83715, 74.558]
+    ],
+    "catalysts": [
+      "Central Rail Terminal Modernisation – 65% complete",
+      "Krishna Riverfront Promenade Widening – Expected Q3 2027",
+      "Smart Underground Grid Phase II – 30%"
+    ]
+  },
+  {
+    "id": "kupwad",
+    "name": "Kupwad Industrial Corridor",
+    "score": 71,
+    "apr": 24.5,
+    "center": [16.885, 74.625],
+    "bounds": [
+      [16.900, 74.603],
+      [16.9015, 74.645],
+      [16.870, 74.646],
+      [16.86925, 74.605]
+    ],
+    "catalysts": [
+      "MIDC Heavy Commercial Arterial Upgrade – 50% complete",
+      "Outer Ring Road Express Link – Expected 2028"
+    ]
+  },
+  {
+    "id": "miraj",
+    "name": "Miraj Transit Junction",
+    "score": 79,
+    "apr": 29.8,
+    "center": [16.825, 74.645],
+    "bounds": [
+      [16.842, 74.623],
+      [16.8437, 74.665],
+      [16.808, 74.666],
+      [16.80715, 74.625]
+    ],
+    "catalysts": [
+      "Multi-Modal Rail Hub Expansion – 80% complete",
+      "Bypass Expressway Spur Connection – Expected Q1 2028"
+    ]
+  },
+  {
+    "id": "madhav",
+    "name": "Madhavnagar Freight Zone",
+    "score": 54,
+    "apr": 15.1,
+    "center": [16.795, 74.560],
+    "bounds": [
+      [16.810, 74.538],
+      [16.8115, 74.580],
+      [16.780, 74.581],
+      [16.77925, 74.540]
+    ],
+    "catalysts": [
+      "Dedicated Freight Corridor Siding – 40% complete",
+      "State Logistics & Cold Storage Hub – Planning stage"
+    ]
+  }
+]

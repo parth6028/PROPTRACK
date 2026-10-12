@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none">
+  <rect x="2" y="4" width="32" height="32" rx="10" fill="#0f172a"/>
+  <path d="M10 20L18 12L26 20V27C26 27.55 25.55 28 25 28H21V23H15V28H11C10.45 28 10 27.55 10 27V20Z" fill="#10b981"/>
+  <circle cx="18" cy="19" r="2.2" fill="#3b82f6"/>
+  <text x="42" y="26" font-family="'Space Grotesk', system-ui, sans-serif" font-weight="800" font-size="20" fill="#0f172a" letter-spacing="-0.5">Prop<tspan fill="#059669">Track</tspan></text>
+</svg>

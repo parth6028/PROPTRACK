@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PropTrack — Infrastructure-Correlated Real Estate Intelligence &amp; GIS Analytics</title>
+  
+  <!-- SEO & Metadata -->
+  <meta name="description" content="PropTrack is an explainable, rule-based Development Outlook scoring platform for Sangli-Miraj-Kupwad, linking real estate to planned infrastructure milestones and GIS intelligence.">
+  <meta name="keywords" content="PropTrack, Sangli Real Estate, Development Outlook Score, GIS Heatmap, Infrastructure Proximity, AHP Weighting">
+  <meta name="author" content="Walchand College of Engineering, Sangli">
+  <meta property="og:title" content="PropTrack — Development-Linked Property Outlook for Sangli">
+  <meta property="og:description" content="Objective, explainable growth scores computed from infrastructure tenders, distance decay, and approval stages on an interactive GIS map.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+
+  <!-- Tailwind CSS CDN for Utility Classes -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            growth: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            infra: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          },
+          boxShadow: {
+            'growth-glow': '0 0 25px -4px rgba(16, 185, 129, 0.28)',
+            'infra-glow': '0 0 25px -4px rgba(37, 99, 235, 0.25)',
+            'glass': '0 12px 36px 0 rgba(15, 23, 42, 0.06)',
+            'card-lift': '0 20px 40px -12px rgba(15, 23, 42, 0.09), 0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/corridor-map.css">
+
+  <!-- External Map & Chart Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-slate-900 selection:text-white">
+
+  <!-- Subtle Neutral Background Mesh -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] overflow-hidden pointer-events-none -z-10" aria-hidden="true">
+    <div class="absolute -top-32 left-1/4 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute top-10 right-1/4 w-[450px] h-[450px] bg-emerald-500/5 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 z-40 glass border-b border-slate-200/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="#explore" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-xl p-1" aria-label="PropTrack Home">
+        <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-950 flex items-center justify-center shadow-md group-hover:scale-105 transition-all duration-200 shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 font-display">Prop<span class="text-emerald-700">Track</span></span>
+            <span class="tag-badge bg-blue-50 text-blue-800 border-blue-200 text-[9px] sm:text-[10px] uppercase font-bold py-0.5 px-2">Sangli Pilot</span>
+          </div>
+          <p class="text-[10px] sm:text-[11px] font-semibold text-slate-600 tracking-wide line-clamp-1">Development-Linked Property Outlook</p>
+        </div>
+      </a>
+
+      <!-- Navigation Tabs (Desktop & PC) -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-100/90 p-1.5 rounded-full border border-slate-200/80" role="tablist" aria-label="Main Navigation">
+        <button class="nav-tab act" data-t="explore" role="tab" aria-selected="true" aria-controls="explore">
+          <span>📍</span> Explore Corridor
+        </button>
+        <button class="nav-tab" data-t="sim" role="tab" aria-selected="false" aria-controls="sim">
+          <span>⚡</span> Growth Simulator
+        </button>
+        <button class="nav-tab" data-t="scouts" role="tab" aria-selected="false" aria-controls="scouts">
+          <span>🛡</span> Ground Scouts
+        </button>
+        <button class="nav-tab" data-t="map" role="tab" aria-selected="false" aria-controls="mapwrap">
+          <span>🗺</span> GIS Engine
+        </button>
+      </nav>
+
+      <!-- Fast Actions Header -->
+      <div class="flex items-center gap-2">
+        <button onclick="document.getElementById('q')?.focus(); document.getElementById('lh')?.scrollIntoView({behavior:'smooth'})" class="p-2 sm:p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Search Assets" aria-label="Search Assets">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        <button onclick="document.getElementById('lh')?.scrollIntoView({behavior:'smooth'})" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-extrabold bg-slate-950 text-white shadow-sm hover:bg-slate-800 transition active:scale-95">
+          <span>★</span> Verified Assets
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: CORRIDOR EXPLORATION TAB        -->
+    <!-- ========================================== -->
+    <section id="explore" class="tab-panel fade-in" role="tabpanel" aria-labelledby="tab-explore">
+      
+      <!-- Academic Context & Value Proposition Banner -->
+      <div class="relative overflow-hidden rounded-[24px] sm:rounded-[32px] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 mb-8">
+        <div class="relative z-10 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-3 sm:mb-4">
+            <span class="tag-badge bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] sm:text-xs font-bold">
+              ✓ Sangli-Miraj-Kupwad Pilot
+            </span>
+            <span class="tag-badge bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[11px] sm:text-xs font-bold">
+              SDG 9 &amp; 11 Aligned
+            </span>
+            <span class="tag-badge bg-white/10 text-slate-300 border border-white/15 text-[11px] sm:text-xs font-semibold">
+              Walchand College of Engineering
+            </span>
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-[1.2] sm:leading-[1.15]">
+            Quantifying Growth Before Prices Catch Up.
+          </h1>
+
+          <p class="mt-3 sm:mt-4 text-slate-300 text-xs sm:text-sm lg:text-base leading-relaxed max-w-2xl font-normal">
+            Property decisions are driven largely by current asking rates and past reputation. PropTrack turns infrastructure tenders, distance decay, and approval stages into an explainable <strong>0–100 Development Outlook Score</strong>.
+          </p>
+
+          <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+            <a href="#mapwrap" class="btn-primary !bg-white !text-slate-950 hover:!bg-slate-100 !px-5 sm:!px-6 !py-3 !rounded-2xl !text-xs sm:!text-sm text-center">
+              Explore Live GIS Map ↘
+            </a>
+            <button onclick="window.ptControls?.setPreset('verified')" class="btn-secondary !bg-white/10 !text-white !border-white/20 hover:!bg-white/20 !px-5 sm:!px-6 !py-3 !rounded-2xl !text-xs sm:!text-sm text-center">
+              View Scout Audited Listings
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corridor Filter Bar -->
+      <div class="glass-card p-4 sm:p-5 mb-8 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-center">
+          
+          <div>
+            <label for="fz" class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 mb-1">Corridor Zone</label>
+            <select id="fz" class="form-select w-full" aria-label="Filter by Zone">
+              <option value="">All Corridors &amp; Zones</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="ft" class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 mb-1">Asset Class</label>
+            <select id="ft" class="form-select w-full" aria-label="Filter by Asset Class">
+              <option value="">All Asset Types</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Villa">Villa</option>
+              <option value="Commercial">Commercial / Office</option>
+              <option value="Plot">Plot / NA Land</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="fp" class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 mb-1">Max Budget</label>
+            <select id="fp" class="form-select w-full" aria-label="Filter by Max Budget">
+              <option value="9999">Any Budget</option>
+              <option value="150">&lt; ₹1.5 Cr</option>
+              <option value="300">&lt; ₹3.0 Cr</option>
+              <option value="500">&lt; ₹5.0 Cr</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="fs" class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 mb-1">Min Growth Score</label>
+            <select id="fs" class="form-select w-full" aria-label="Filter by Minimum Growth Score">
+              <option value="0">All Scores (0+)</option>
+              <option value="70">70+ (Strong Catalyst)</option>
+              <option value="85">85+ (High Alpha Corridor)</option>
+            </select>
+          </div>
+
+          <div class="flex items-end pt-5 sm:pt-0">
+            <button id="go" class="btn-primary w-full !py-2.5 !rounded-full !bg-slate-950 text-white shadow-sm">
+              Apply Filters
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Quick Filter Pills -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-100 text-xs px-1">
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none flex-nowrap text-xs">
+            <span class="text-slate-600 font-semibold shrink-0 mr-1">Quick Presets:</span>
+            <button data-preset="all" class="shrink-0 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">All</button>
+            <button data-preset="verified" class="shrink-0 px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition">✓ Scout Audited Only</button>
+            <button data-preset="highScore" class="shrink-0 px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-800 font-semibold border border-blue-200 transition">★ Top Growth 80+</button>
+            <button data-preset="budget150" class="shrink-0 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">&lt; ₹1.5 Cr</button>
+          </div>
+          <button id="clearAllFiltersBtn" onclick="window.ptControls?.setPreset('all')" class="text-slate-600 hover:text-slate-800 font-bold transition shrink-0 ml-auto">Clear All Filters</button>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- UNIFIED MAP ENGINE (CARTO GIS + OUTLOOK HEATMAP LAYER)   -->
+      <!-- ======================================================== -->
+      <div id="mapwrap" class="mt-8 scroll-mt-24">
+        
+        <!-- Header with Title & Infrastructure Badges -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-600 shadow-infra-glow animate-pulse" aria-hidden="true"></span>
+              <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight font-display" id="mapTitle">Interactive Infrastructure GIS Corridor</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-1 font-medium" id="mapSub">
+              Development Outlook Heatmap Model seamlessly overlaid on real GIS tiles with verified infrastructure vectors.
+            </p>
+          </div>
+
+          <!-- GIS Toolbar: Overlays & Basemap Actions -->
+          <div class="flex items-center gap-1.5 sm:gap-2 text-xs overflow-x-auto pb-1 max-w-full scrollbar-none flex-nowrap sm:flex-wrap">
+            <div class="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shrink-0">
+              <button class="lg px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-white border border-blue-200 text-blue-600 shadow-sm hover:bg-blue-50 transition active:scale-95 text-[11px] sm:text-xs" data-o="metro" title="Toggle Rail Corridor">
+                ━ Rail Corridor
+              </button>
+              <button class="lg px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-white border border-amber-200 text-amber-700 shadow-sm hover:bg-amber-50 transition active:scale-95 text-[11px] sm:text-xs" data-o="hwy" title="Toggle Bypass Expressway">
+                ━ Bypass Expressway
+              </button>
+              <button class="lg px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-white border border-emerald-200 text-emerald-700 shadow-sm hover:bg-emerald-50 transition active:scale-95 text-[11px] sm:text-xs" data-o="it" title="Toggle MIDC Hubs">
+                ● Industrial &amp; SEZ Hubs
+              </button>
+            </div>
+
+            <button id="btnResetCenter" class="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 text-[11px] sm:text-xs" title="Center on Sangli Cluster">
+              ↺ Center
+            </button>
+            <button id="btnFitCorridor" class="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50 transition active:scale-95 text-[11px] sm:text-xs" title="Fit Corridor Bounds">
+              ⛶ Fit Bounds
+            </button>
+            <button id="vs" class="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-slate-950 text-white shadow-sm hover:bg-slate-800 transition active:scale-95 flex items-center gap-1.5 text-[11px] sm:text-xs" title="Toggle Satellite Basemap">
+              <span>🛰</span> Satellite
+            </button>
+            <button id="btnFullscreen" class="shrink-0 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold bg-slate-100 border border-slate-300 text-slate-800 shadow-sm hover:bg-slate-200 transition active:scale-95 text-[11px] sm:text-xs" title="Toggle Fullscreen">
+              <span>⛶</span> Fullscreen
+            </button>
+          </div>
+        </div>
+
+        <!-- Unified Leaflet Map Container -->
+        <div id="gisMapContainer" class="relative rounded-[24px] sm:rounded-[32px] overflow-hidden border border-slate-200/90 shadow-xl bg-slate-100" style="height:min(74vh, 640px); min-height: 400px; isolation: isolate;">
+          
+          <!-- Leaflet Canvas Element -->
+          <div id="lmap" class="absolute inset-0" role="region" aria-label="Interactive GIS Map of Sangli Infrastructure Corridor"></div>
+
+          <!-- FLOATING HEATMAP CONTROL CARD (Top Left Overlay) -->
+          <div class="map-floating-panel" id="mapFloatingPanel" role="region" aria-label="Outlook Heatmap Controls">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200/70 select-none">
+              <div class="flex items-center gap-2 cursor-pointer" id="panelTitleToggle" title="Click to collapse / expand controls">
+                <span class="text-base">🔥</span>
+                <span class="text-xs font-black text-slate-900 uppercase tracking-wider font-display">Outlook Heatmap</span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <!-- Layer Toggle Switch (Default ON) -->
+                <label class="switch" title="Toggle Outlook Heatmap Layer" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="heatmapToggle" checked aria-label="Toggle Outlook Heatmap Layer">
+                  <span class="slider-toggle"></span>
+                </label>
+
+                <!-- Minimize / Expand Toggle Button -->
+                <button type="button" id="btnPanelToggle" class="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 grid place-items-center text-xs font-bold transition ml-0.5" title="Collapse / Expand panel" aria-label="Collapse or expand panel">
+                  <span id="panelToggleIcon">▾</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Collapsible Body Section -->
+            <div id="panelBody">
+              <!-- Opacity Slider Control Group -->
+              <div id="opacityControlGroup" class="mt-3 opacity-control-group">
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <label for="heatmapOpacity" class="font-bold text-slate-700">Layer Opacity:</label>
+                  <span id="opacityValBadge" class="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 text-[11px]">70%</span>
+                </div>
+                <input type="range" id="heatmapOpacity" min="0" max="100" value="70" class="w-full accent-blue-600 cursor-pointer" aria-label="Adjust Heatmap Opacity">
+                <div class="flex justify-between text-[10px] text-slate-400 font-semibold mt-0.5">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              <!-- Embedded Model Calibration (Certainty & Horizon) -->
+              <div class="mt-3 pt-2.5 border-t border-slate-100 space-y-2.5 text-xs">
+                <div>
+                  <label for="st" class="block font-bold text-slate-700 text-[11px] mb-1">Minimum Stage Certainty:</label>
+                  <select id="st" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition cursor-pointer">
+                    <option value="0.2">Proposed (0.2 certainty)</option>
+                    <option value="0.4">Approved (0.4 certainty)</option>
+                    <option value="0.7">Funded (0.7 certainty)</option>
+                    <option value="0.9">Under construction (0.9)</option>
+                    <option value="1.0">Commissioned (1.0)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div class="flex justify-between items-center mb-1">
+                    <label for="yr" class="font-bold text-slate-700 text-[11px]">Horizon Year:</label>
+                    <span id="yv" class="font-black text-emerald-700 font-display bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-[11px]">2036</span>
+                  </div>
+                  <input id="yr" type="range" min="2026" max="2036" value="2036" class="w-full accent-slate-950 cursor-pointer" aria-label="Horizon Year">
+                  <div class="flex justify-between text-[10px] text-slate-400 font-semibold">
+                    <span>2026</span>
+                    <span>2031</span>
+                    <span>2036</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-semibold">
+                <span>Rule-Based Spatial Model</span>
+                <span class="text-blue-600 font-bold">16.8 × 11.2 km</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPACT GRADIENT LEGEND (Bottom Left Overlay) -->
+          <div class="map-legend-card" role="region" aria-label="Heatmap Gradient Legend">
+            <div class="flex items-center justify-between mb-1.5 font-bold text-[10px] uppercase text-slate-500 tracking-wider">
+              <span>Outlook Model Scale</span>
+              <span class="text-emerald-600">0 – 100</span>
+            </div>
+            <div class="map-legend-bar"></div>
+            <div class="flex justify-between items-center text-[10px] font-bold text-slate-600 mt-1">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#0ea5e9]"></span> Low</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#10b981]"></span> Moderate</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> High Growth</span>
+            </div>
+          </div>
+
+          <!-- Floating Zone Intelligence Drawer (Desktop) -->
+          <aside id="drawer" class="hidden md:block absolute right-5 top-5 w-84 glass-dark text-white rounded-3xl p-6 text-sm z-[1000] shadow-2xl border border-white/10 transition-all" aria-label="Selected Corridor Zone Details"></aside>
+        </div>
+
+        <!-- Floating Zone Intelligence Drawer (Mobile) -->
+        <aside id="drawerM" class="md:hidden glass-dark text-white rounded-3xl p-6 mt-4 text-sm hidden shadow-2xl border border-white/10" aria-label="Selected Corridor Zone Mobile Details"></aside>
+
+        <!-- Cell / Area Inspection Details Card -->
+        <div class="mt-6 glass-card p-6 rounded-3xl" id="out" role="region" aria-label="Cell Inspection Breakdown">
+          <div class="mut py-4 text-center">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 grid place-items-center text-lg mx-auto mb-2 font-bold" aria-hidden="true">🎯</div>
+            <p class="font-semibold text-slate-700">Click any location on the map to inspect its Development Outlook Score and distance-decay breakdown.</p>
+            <p class="text-[11px] text-slate-400 mt-1">Calculates exact Haversine proximity to Pune-Miraj rail doubling, NH-166 bypass, Kupwad MIDC, and upcoming expressway nodes.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Key Architectural Pillars -->
+      <div class="grid sm:grid-cols-3 gap-5 mt-12">
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="w-12 h-12 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-bold text-xl mb-4 shadow-sm" aria-hidden="true">
+            ✓
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 font-display">Ground-Audited By Scouts</h3>
+          <p class="text-slate-500 text-sm mt-2 leading-relaxed">
+            Every listing undergoes on-site physically verified audits: access road widths, municipal water pressure, noise ratings, and live construction stages.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl mb-4 border border-blue-200/50 shadow-sm" aria-hidden="true">
+            ↗
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 font-display">Distance-Decay Weighting</h3>
+          <p class="text-slate-500 text-sm mt-2 leading-relaxed">
+            Proximity isn't linear. Exponential decay algorithms accurately reflect accessibility corridors to expressways, stations, and industrial parks.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl mb-4 border border-emerald-200/50 shadow-sm" aria-hidden="true">
+            ◎
+          </div>
+          <h3 class="text-lg font-bold text-slate-900 font-display">Certainty Discounting</h3>
+          <p class="text-slate-500 text-sm mt-2 leading-relaxed">
+            Proposed infrastructure carries higher discount rates than funded or under-construction projects, keeping valuations realistic and grounded.
+          </p>
+        </div>
+      </div>
+
+      <!-- Properties Grid Header & Controls -->
+      <div id="lh" class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-12 sm:mt-16 mb-6 pt-6 border-t border-slate-200/80">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display tracking-tight">Curated Corridor Assets</h2>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+          </div>
+          <div id="cnt" class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Showing all listings</div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center text-xs sm:text-sm w-full sm:w-auto">
+          <!-- Keyword input -->
+          <div class="relative w-full sm:w-56">
+            <input id="q" placeholder="Search by name, zone, type..." class="bg-white rounded-full pl-9 pr-4 py-2 outline-none border border-slate-200 focus:border-slate-400 text-xs w-full shadow-sm transition" aria-label="Search listings">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+
+          <!-- Sort dropdown -->
+          <select id="so" class="bg-white rounded-full px-3.5 sm:px-4 py-2 border border-slate-200 focus:border-slate-400 text-xs font-semibold text-slate-700 shadow-sm cursor-pointer outline-none flex-1 sm:flex-initial" aria-label="Sort listings">
+            <option value="s">Highest Growth Score</option>
+            <option value="pa">Price: Low to High</option>
+            <option value="pd">Price: High to Low</option>
+          </select>
+
+          <!-- Toggle buttons -->
+          <button id="vo" class="px-3 sm:px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+            ✓ Verified Only
+          </button>
+          <button id="fv" class="px-3 sm:px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm transition active:scale-95 shrink-0">
+            ♥ Saved (0)
+          </button>
+          <button id="cl" class="px-2.5 sm:px-3 py-2 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-900 transition shrink-0" title="Clear Filters">
+            Reset
+          </button>
+
+          <!-- View Layout Switcher (Grid vs List) -->
+          <div class="flex items-center bg-slate-100 p-0.5 rounded-full border border-slate-200 shrink-0 ml-auto sm:ml-0" role="group" aria-label="Layout Switcher">
+            <button id="btnGrid" class="px-2.5 py-1.5 rounded-full bg-white text-slate-950 font-bold text-xs shadow-sm transition" title="Grid View" aria-label="Grid View">
+              ⊞ Grid
+            </button>
+            <button id="btnList" class="px-2.5 py-1.5 rounded-full text-slate-500 font-semibold text-xs hover:text-slate-900 transition" title="Compact List View" aria-label="Compact List View">
+              ≡ List
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Cards Grid / List Container -->
+      <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" role="region" aria-label="Property Cards"></div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: SCORING SIMULATOR TAB          -->
+    <!-- ========================================== -->
+    <section id="sim" class="tab-panel hidden py-12 max-w-4xl mx-auto fade-in" role="tabpanel" aria-labelledby="tab-simulator">
+      <div class="text-center mb-10">
+        <span class="tag-badge bg-emerald-50 text-emerald-800 border border-emerald-200 mb-3">Live Scenario Engine</span>
+        <h2 class="text-4xl font-extrabold text-slate-950 font-display tracking-tight">Corridor Growth Simulator</h2>
+        <p class="text-slate-500 text-base mt-2 max-w-xl mx-auto">
+          Simulate how upcoming infrastructure tenders and civic milestones mathematically transform asset valuations over a 5-year holding horizon.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-12 gap-8 items-start">
+        
+        <!-- Catalysts Checkbox Group -->
+        <div class="md:col-span-7 glass-card p-6 space-y-4">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Simulated Project Milestones</h3>
+          <div id="checks" class="space-y-3 text-sm"></div>
+
+          <div class="pt-4 border-t border-slate-100">
+            <label for="amt" class="block text-xs font-bold text-slate-700 mb-1.5">Hypothetical Capital Deployment (₹ Lakhs):</label>
+            <input id="amt" type="number" value="100" min="10" max="1000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <!-- Projected Outcome Card -->
+        <div class="md:col-span-5 glass-card p-6 text-center space-y-5 bg-gradient-to-b from-white to-slate-50">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Simulated Corridor Score</span>
+            <div class="text-6xl font-black text-slate-950 font-display" id="ss">12</div>
+            <div class="text-xs font-bold text-slate-400 mt-1">/ 100 Index</div>
+          </div>
+
+          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+            <div id="sb" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 12%"></div>
+          </div>
+
+          <div>
+            <span id="scoreTier" class="tag-badge bg-amber-50 text-amber-800 border border-amber-200 font-medium">Early Speculation</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200/80 text-left">
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm">
+              <span class="text-[10px] font-bold text-slate-400 uppercase block">5Y Alpha Boost</span>
+              <b class="text-lg font-black text-emerald-600 font-display mt-0.5 block" id="sbo">+5.0%</b>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm">
+              <span class="text-[10px] font-bold text-slate-400 uppercase block">Projected Capital</span>
+              <b class="text-lg font-black text-slate-950 font-display mt-0.5 block" id="amv">₹1.05 Cr</b>
+            </div>
+          </div>
+
+          <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-left flex justify-between items-center text-xs">
+            <span class="font-bold text-emerald-900">Net Estimated Surplus:</span>
+            <b class="font-black text-emerald-700 font-display text-sm" id="netGain">+₹5.0 L</b>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: GROUND SCOUTS TAB               -->
+    <!-- ========================================== -->
+    <section id="scouts" class="tab-panel hidden py-12 fade-in" role="tabpanel" aria-labelledby="tab-scouts">
+      <div class="text-center mb-10 max-w-2xl mx-auto">
+        <span class="tag-badge bg-blue-50 text-blue-800 border border-blue-200 mb-3">On-Ground Verification Telemetry</span>
+        <h2 class="text-4xl font-extrabold text-slate-950 font-display tracking-tight">Decentralized Ground Scouts</h2>
+        <p class="text-slate-500 text-base mt-2">
+          Real property values require real audits. Our network of verified engineers and surveyors log physical milestones on the ground.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Scout Verification Form -->
+        <div class="lg:col-span-5 glass-card p-6 space-y-4">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">Submit Physical Audit Report</h3>
+          
+          <div>
+            <label for="sp" class="block text-xs font-bold text-slate-700 mb-1">Target Asset Listing:</label>
+            <select id="sp" class="form-select w-full"></select>
+          </div>
+
+          <div>
+            <label for="sname" class="block text-xs font-bold text-slate-700 mb-1">Field Auditor / Scout ID:</label>
+            <input id="sname" placeholder="e.g. Er. Rohit Kadam (Scout #108)" class="form-input w-full">
+          </div>
+
+          <div>
+            <label for="sn" class="block text-xs font-bold text-slate-700 mb-1">Field Audit Observations &amp; Verification:</label>
+            <textarea id="sn" rows="4" placeholder="Log road width tarring, transformer installation, water pipeline pressure, foundation piling progress..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition"></textarea>
+          </div>
+
+          <button id="sub" class="btn-primary w-full !py-3 !rounded-xl !bg-slate-950 text-white shadow-md">
+            Broadcast Verified Audit Log
+          </button>
+
+          <!-- Audit Reliability Gauges -->
+          <div class="mt-6 pt-5 border-t border-slate-100">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3">Audited Telemetry Confidence</h4>
+            <div class="space-y-4" id="met"></div>
+          </div>
+        </div>
+
+        <!-- Live Scout Feed Stream -->
+        <div class="lg:col-span-7 glass-card p-6">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Live Field Audit Dispatch Stream</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-semibold">Real-Time</span>
+          </div>
+
+          <div id="feed" class="space-y-3"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-20 border-t border-slate-200 bg-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-lg font-extrabold text-slate-900 font-display">Prop<span class="text-emerald-700">Track</span></span>
+          <span class="tag-badge bg-slate-100 text-slate-700 text-[10px]">v1.0.0</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1 max-w-md">
+          Department of Computer Science &amp; Engineering, Walchand College of Engineering, Sangli.
+          Guided by Dr. A. R. Surve &amp; Mrs. A. M. Chimanna.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600">
+        <span class="tag-badge bg-emerald-50 text-emerald-800 border-emerald-200">SDG 9: Industry &amp; Infra</span>
+        <span class="tag-badge bg-blue-50 text-blue-800 border-blue-200">SDG 11: Sustainable Cities</span>
+        <span class="text-slate-400">© 2026-27 PropTrack Research Group</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- GLOBAL DRAWERS, MODALS & TOASTS            -->
+  <!-- ========================================== -->
+
+  <!-- Global Comparison Floating Drawer Bar -->
+  <aside id="cbar" class="hidden glass-dark text-white px-5 py-3 rounded-full flex items-center gap-4 shadow-2xl border border-white/10" aria-label="Comparison Drawer">
+    <div class="flex items-center gap-2 text-xs font-bold">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span>Comparing <b id="cn" class="text-emerald-400">0</b> properties</span>
+    </div>
+    <button id="openCompareBtn" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-full transition shadow-sm">
+      View Side-by-Side ↗
+    </button>
+    <button id="clearCompareBtn" class="text-xs text-slate-400 hover:text-white transition">
+      Clear
+    </button>
+  </aside>
+
+  <!-- Global Modal Dialog (Details & Compare) -->
+  <div id="modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalContent" class="glass-card max-w-2xl w-full p-6 sm:p-8 relative bg-white">
+      <button id="mx" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 grid place-items-center text-lg leading-none transition" title="Close Modal" aria-label="Close Modal">×</button>
+      <div id="mb"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Box -->
+  <div id="toast" class="hidden bg-slate-950 text-white text-xs font-extrabold px-5 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-2.5" role="status" aria-live="polite">
+    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- Fixed Mobile Bottom Navigation Bar (Phones & Small Tablets) -->
+  <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 flex items-center justify-around shadow-2xl transition-all" role="tablist" aria-label="Mobile Navigation">
+    <button class="nav-tab act flex flex-col items-center gap-0.5 text-[10px] font-bold px-3 py-1 rounded-xl transition" data-t="explore" role="tab" aria-selected="true" aria-label="Explore Corridor">
+      <span class="text-base leading-none">📍</span>
+      <span>Explore</span>
+    </button>
+    <button class="nav-tab flex flex-col items-center gap-0.5 text-[10px] font-bold px-3 py-1 rounded-xl transition" data-t="map" role="tab" aria-selected="false" aria-label="GIS Engine">
+      <span class="text-base leading-none">🗺</span>
+      <span>GIS Map</span>
+    </button>
+    <button class="nav-tab flex flex-col items-center gap-0.5 text-[10px] font-bold px-3 py-1 rounded-xl transition" data-t="sim" role="tab" aria-selected="false" aria-label="Simulator">
+      <span class="text-base leading-none">⚡</span>
+      <span>Simulator</span>
+    </button>
+    <button class="nav-tab flex flex-col items-center gap-0.5 text-[10px] font-bold px-3 py-1 rounded-xl transition" data-t="scouts" role="tab" aria-selected="false" aria-label="Ground Scouts">
+      <span class="text-base leading-none">🛡</span>
+      <span>Scouts</span>
+    </button>
+  </nav>
+
+  <!-- Main ES Module Application Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

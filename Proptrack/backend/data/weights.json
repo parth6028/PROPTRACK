@@ -1,0 +1,33 @@
+{
+  "types": {
+    "highway": { "w": 0.9, "d0": 2.5, "label": "Highway / Expressway" },
+    "rail": { "w": 0.8, "d0": 2.0, "label": "Rail Transit / Doubling" },
+    "industrial": { "w": 0.8, "d0": 2.5, "label": "Industrial Zone / MIDC" },
+    "it": { "w": 0.7, "d0": 2.0, "label": "IT Park / Commercial SEZ" },
+    "ring": { "w": 0.7, "d0": 2.5, "label": "Ring Road Arterial" },
+    "bridge": { "w": 0.6, "d0": 1.5, "label": "River Bridge / Confluence Deck" }
+  },
+  "stages": {
+    "proposed": 0.2,
+    "approved": 0.4,
+    "funded": 0.7,
+    "construction": 0.9,
+    "completed": 1.0
+  },
+  "modelConfig": {
+    "baseYear": 2026,
+    "decayFactor": 10,
+    "categoryCapRatio": 0.6,
+    "bounds": {
+      "minLat": 16.780,
+      "maxLat": 16.915,
+      "minLng": 74.520,
+      "maxLng": 74.695
+    },
+    "grid": {
+      "cols": 24,
+      "rows": 16,
+      "cellKm": 0.7
+    }
+  }
+}

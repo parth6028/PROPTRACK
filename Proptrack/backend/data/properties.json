@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "title": "Skyline Apex Residences (3 BHK)",
+    "zone": "core",
+    "type": "Apartment",
+    "price": 320,
+    "score": 91,
+    "verified": 1,
+    "coordinates": [16.858, 74.585],
+    "gridX": 6.2,
+    "gridY": 5.1,
+    "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+    "specs": "3 BHK • 1,840 sq.ft • ₹17,390/sq.ft",
+    "landType": "Non-Agricultural (NA Urban)",
+    "legalEligibility": "Open to all purchasers (Title Deed Clear)",
+    "catalysts": [
+      ["Central Railway Station", 0.8],
+      ["Bypass Expressway", 2.1],
+      ["Krishna Riverfront", 1.2]
+    ],
+    "trajectory": [320, 410, 520, 740],
+    "notes": [
+      "Road width: 24 m asphalt, newly resurfaced",
+      "Water: 24x7 municipal pressure certified",
+      "Noise: moderate (soundproof double-glazing installed)",
+      "Site inspection: Tower B concrete superstructure at 70%"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Market Yard Studio Offices",
+    "zone": "core",
+    "type": "Commercial",
+    "price": 540,
+    "score": 86,
+    "verified": 1,
+    "coordinates": [16.848, 74.595],
+    "gridX": 6.8,
+    "gridY": 5.3,
+    "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+    "specs": "Commercial • 3,200 sq.ft • Grade-A Office",
+    "landType": "Non-Agricultural (NA Commercial)",
+    "legalEligibility": "Open to all commercial entities (RERA Approved)",
+    "catalysts": [
+      ["Central Railway Station", 0.5],
+      ["Main Market Commercial Ring", 0.3]
+    ],
+    "trajectory": [540, 690, 880, 1250],
+    "notes": [
+      "Road width: 30 m four-lane boulevard",
+      "Power: Dual-grid 33kV substation feeder",
+      "Noise: high daytime commercial footfall",
+      "Legal: 100% municipal title deeds verified"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Greenfield Palms Villa (4 BHK)",
+    "zone": "kupwad",
+    "type": "Villa",
+    "price": 410,
+    "score": 72,
+    "verified": 1,
+    "coordinates": [16.888, 74.615],
+    "gridX": 9.3,
+    "gridY": 3.2,
+    "image": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80",
+    "specs": "4 BHK Villa • 3,100 sq.ft • Private Garden",
+    "landType": "Non-Agricultural (NA Residential)",
+    "legalEligibility": "Open to all buyers (Collector Sanctioned NA)",
+    "catalysts": [
+      ["Outer Ring Road Express Link", 1.6],
+      ["MIDC Arterial Connector", 3.4]
+    ],
+    "trajectory": [410, 480, 580, 780],
+    "notes": [
+      "Road width: 12 m internal paved road",
+      "Water: dual borewell + municipal connection verified",
+      "Noise: quiet residential green belt",
+      "Perimeter: gated compound wall complete"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Transit Junction Suites",
+    "zone": "miraj",
+    "type": "Apartment",
+    "price": 280,
+    "score": 80,
+    "verified": 1,
+    "coordinates": [16.822, 74.652],
+    "gridX": 10.4,
+    "gridY": 7.1,
+    "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+    "specs": "2.5 BHK • 1,420 sq.ft • Transit Oriented",
+    "landType": "Non-Agricultural (NA Urban)",
+    "legalEligibility": "Open to all purchasers (Miraj Municipal Town Planning)",
+    "catalysts": [
+      ["Miraj Multi-Modal Junction", 1.1],
+      ["Bypass Link Connector", 0.7]
+    ],
+    "trajectory": [280, 350, 440, 610],
+    "notes": [
+      "Road width: 18 m arterial road access",
+      "Water: underground reservoir complete",
+      "Noise: low acoustic dampening",
+      "Structure: ground + 12 floors sanctioned"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Kupwad Residential Development Plot",
+    "zone": "kupwad",
+    "type": "Plot",
+    "price": 95,
+    "score": 63,
+    "verified": 0,
+    "coordinates": [16.878, 74.635],
+    "gridX": 9.5,
+    "gridY": 2.1,
+    "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+    "specs": "Residential Plot • 2,400 sq.ft • NA Sanctioned",
+    "landType": "NA Sanctioned Plot (Ex-Agricultural)",
+    "legalEligibility": "Section 63 MTAL Clearance Complete; Ready for Construction",
+    "catalysts": [
+      ["Outer Ring Road Express Link", 2.4]
+    ],
+    "trajectory": [95, 110, 135, 190],
+    "notes": [
+      "Status: Physical scout inspection pending",
+      "Access road partially unpaved (gravel layer)",
+      "Boundary demarcation stones logged by survey"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Madhavnagar Freight Logistics Yard",
+    "zone": "madhav",
+    "type": "Commercial",
+    "price": 180,
+    "score": 52,
+    "verified": 0,
+    "coordinates": [16.797, 74.553],
+    "gridX": 4.2,
+    "gridY": 8.2,
+    "image": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+    "specs": "Industrial / Commercial • 12,000 sq.ft Plot",
+    "landType": "Agricultural (Industrial Conversion Eligible)",
+    "legalEligibility": "Subject to MTAL Act s.63 Agricultural Purchaser Rules / Industrial Conversion Gate",
+    "catalysts": [
+      ["Dedicated Freight Corridor", 3.8],
+      ["State Logistics Hub", 4.5]
+    ],
+    "trajectory": [180, 195, 220, 275],
+    "notes": [
+      "Status: Awaiting second round scout verification",
+      "Heavy axle truck transit on main road",
+      "Zoning certificate under municipal review"
+    ]
+  }
+]
